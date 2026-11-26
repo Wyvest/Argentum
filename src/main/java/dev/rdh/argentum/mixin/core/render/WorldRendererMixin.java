@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import dev.rdh.argentum.impl.Argentum;
 import dev.rdh.argentum.impl.ext.WorldRendererExtension;
 import dev.rdh.argentum.impl.render.terrain.ArgentumWorldRenderer;
 import dev.rdh.argentum.impl.render.terrain.NoopRenderChunkStorage;
@@ -34,6 +35,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL40;
 import org.lwjgl.system.MemoryStack;
 
 import java.util.Collections;
@@ -114,6 +117,9 @@ public abstract class WorldRendererMixin implements WorldRendererExtension {
         try {
             this.renderer.drawChunkLayer(layer, x, y, z);
         } finally {
+            if (Argentum.indirectChunkDraws()) {
+                GL15.glBindBuffer(GL40.GL_DRAW_INDIRECT_BUFFER, 0);
+            }
             RenderDevice.exitManagedCode();
         }
 
